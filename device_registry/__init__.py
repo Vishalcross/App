@@ -37,6 +37,16 @@ def index():
         # Convert to HTML
         return markdown.markdown(content)
 
+class Users(Resource):
+    def get(self,userid):
+        # userid = 'babu'
+        print("HELLO")
+        print(userid)
+        list_of_users = ['babu','hello']
+        if userid in list_of_users:
+            return {'message':'Success','data':'Users present'}, 200
+        else:
+            return {'message': 'Failure', 'data': 'Users not present'}, 404
 
 class DeviceList(Resource):
     def get(self):
@@ -87,6 +97,6 @@ class Device(Resource):
         del shelf[identifier]
         return '', 204
 
-
+api.add_resource(Users,'/users/<string:userid>')
 api.add_resource(DeviceList, '/devices')
 api.add_resource(Device, '/device/<string:identifier>')
