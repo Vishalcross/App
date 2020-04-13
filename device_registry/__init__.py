@@ -125,4 +125,5 @@ class Device(Resource):
 
 api.add_resource(Users,'/users/')
 api.add_resource(DeviceList, '/devices')
-api.add_resource(Device, '/user/<string:identifier>')
+api.add_resource(User, '/user/<string:identifier>')
+api.add_resource(Device, '/device/<string:identifier>')
