@@ -26,18 +26,16 @@ def teardown_db(exception):
 
 @app.route("/")
 def index():
-    """Present some documentation"""
     if not request.cookies.get('access_level'):
-        # Open the README file
         with open(os.path.dirname(app.root_path) + '/test.html', 'r') as markdown_file:
 
-            # Read the content of the file
             content = markdown_file.read()
 
-            # Convert to HTML
             return markdown.markdown(content)
     else:
-        res = make_response("You are already logged in as %s"%(request.cookies.get('access_level')))
+        f = open(os.path.dirname(app.root_path)+'/device_registry/' + request.cookies.get('access_level') + '.html', 'r')
+        res =  make_response(f.read())
+        f.close()
         return res
 
 class Users(Resource):
@@ -47,12 +45,18 @@ class Users(Resource):
         parser.add_argument('user',required=True)
         parser.add_argument('password', required=True)
         args = parser.parse_args()
+        #authenticate
         if args['user'] in self.user_db and args['password'] == self.user_db[args['user']]:
+            #check for cookies
             if not request.cookies.get('access_level'):
-                res = make_response("Setting a cookie")
+                f = open(os.path.dirname(app.root_path) +
+                        '/device_registry/' + args['user'] + '.html', 'r')
+                res = make_response(f.read())
                 res.set_cookie('access_level', args['user'], max_age=60*60)
             else:
-                res = make_response("Value of cookie access_level is %s"%(request.cookies.get('access_level')))
+                f = open(os.path.dirname(app.root_path) +'/device_registry/' + args['user'] + '.html', 'r')
+                res = make_response(f.read())
+                f.close()
             return res
         else:
             return {'message': 'Failure', 'data': 'Not found'}, 404
