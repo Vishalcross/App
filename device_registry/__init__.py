@@ -7,6 +7,11 @@ from flask import Flask, g, make_response, request
 from flask_restful import Resource, Api, reqparse
 
 # Create an instance of Flask
+users = {'user1':'id=0',
+        'user2':'id=1',
+        'user3':'id=2',
+        }
+
 app = Flask(__name__)
 
 # Create the API
@@ -39,7 +44,7 @@ def index():
         return res
 
 class Users(Resource):
-    user_db = {'admin':'admin','user':'user'}
+    user_db = {'admin':'admin','user1':'user1','user2':'user2','user3':'user3'}
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('user',required=True)
@@ -60,6 +65,14 @@ class Users(Resource):
             return res
         else:
             return {'message': 'Failure', 'data': 'Not found'}, 404
+
+class User(Resource):
+
+    def get(self, identifier):
+        
+
+        return {'message': 'Device found', 'data': users[identifier]}, 200
+
 
 class DeviceList(Resource):
     def get(self):
@@ -112,4 +125,4 @@ class Device(Resource):
 
 api.add_resource(Users,'/users/')
 api.add_resource(DeviceList, '/devices')
-api.add_resource(Device, '/device/<string:identifier>')
+api.add_resource(Device, '/user/<string:identifier>')
