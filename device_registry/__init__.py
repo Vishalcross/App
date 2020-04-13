@@ -38,13 +38,16 @@ def index():
         return markdown.markdown(content)
 
 class Users(Resource):
-    list_of_users = ['babu','hello']
+    user_db = {'admin':'admin','user':'user'}
     def get(self):
         parser = reqparse.RequestParser()
         parser.add_argument('user',required=True)
-        userid = 'babu'
+        parser.add_argument('password', required=True)
         args = parser.parse_args()
-        return {'message':'Success','data':args}, 200
+        if args['user'] in self.user_db and args['password'] == self.user_db[args['user']]:
+            return {'message':'Success','data':args}, 200
+        else:
+            return {'message': 'Failure', 'data': 'Not found'}, 404
 
 class DeviceList(Resource):
     def get(self):
