@@ -1,5 +1,5 @@
 import flask
-from flask import request, jsonify,render_template
+from flask import request, jsonify,render_template,redirect
 from forms import LoginForm
 from flask_login import LoginManager
 
@@ -61,9 +61,13 @@ def api_id():
     # Python dictionaries to the JSON format.
     return jsonify(results)
 
-@app.route('/login')
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
+    if form.validate_on_submit():
+        flash('Login requested for user {}, remember_me={}'.format(
+            form.username.data, form.remember_me.data))
+        return url_for('users', username='form.username.data')
     return render_template('login.html', title='Sign In', form=form)
 
 app.run()
