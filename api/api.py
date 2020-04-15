@@ -1,73 +1,54 @@
 import flask
-from flask import request, jsonify,render_template,redirect
+from flask import request, jsonify, render_template, redirect,session
 from forms import LoginForm
-from flask_login import LoginManager
+import sys
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
 app.config['SECRET_KEY'] = 'you-will-never-guess'
-login = LoginManager(app)
 
 # Create some test data for our catalog in the form of a list of dictionaries.
-books = [
-    {'id': 0,
-     'title': 'A Fire Upon the Deep',
-     'author': 'Vernor Vinge',
-     'first_sentence': 'The coldsleep itself was dreamless.',
-     'year_published': '1992'},
-    {'id': 1,
-     'title': 'The Ones Who Walk Away From Omelas',
-     'author': 'Ursula K. Le Guin',
-     'first_sentence': 'With a clamor of bells that set the swallows soaring, the Festival of Summer came to the city Omelas, bright-towered by the sea.',
-     'published': '1973'},
-    {'id': 2,
-     'title': 'Dhalgren',
-     'author': 'Samuel R. Delany',
-     'first_sentence': 'to wound the autumnal city.',
-     'published': '1975'}
-]
+
+userdata = {'user1': 'Flag Not Found',
+        'user2': 'Flag Found',
+        'user3': 'Flag Not Found',
+        }
+
+userdb = {'user1': 'user1pass',
+'user2': 'qwerty',
+'user3': 'qwerty'}
 
 
-@app.route('/', methods=['GET'])
-def home():
-    return render_template('login.html')
 
 
-@app.route('/api/v1/resources/books/all', methods=['GET'])
-def api_all():
-    return jsonify(books)
-
-
-@app.route('/api/v1/resources/books', methods=['GET'])
-def api_id():
-    # Check if an ID was provided as part of the URL.
-    # If ID is provided, assign it to a variable.
-    # If no ID is provided, display an error in the browser.
-    if 'id' in request.args:
-        id = int(request.args['id'])
-    else:
-        return "Error: No id field provided. Please specify an id."
-
-    # Create an empty list for our results
-    results = []
-
-    # Loop through the data and match results that fit the requested ID.
-    # IDs are unique, but other fields might return many results
-    for book in books:
-        if book['id'] == id:
-            results.append(book)
-
-    # Use the jsonify function from Flask to convert our list of
-    # Python dictionaries to the JSON format.
-    return jsonify(results)
-
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 def login():
+
     form = LoginForm()
+    session['loggedin']=False
     if form.validate_on_submit():
-        flash('Login requested for user {}, remember_me={}'.format(
-            form.username.data, form.remember_me.data))
-        return url_for('users', username='form.username.data')
+        print(form.username.data in userdb.keys(),file=sys.stderr)
+        print(form.password.data==userdb[form.username.data ],file=sys.stderr)
+        if form.username.data in userdb.keys() and userdb[form.username.data] == form.password.data:
+            #print(form.username.data in userdb.keys(),file=sys.stderr)
+            session['loggedin']=True
+            return redirect("/user/"+str(form.username.data))
+
+        else:
+            return redirect("/")
+  
+
+
     return render_template('login.html', title='Sign In', form=form)
+
+
+
+@app.route('/user/<username>', methods=['GET', 'POST'])
+def user(username):
+    if session.get('loggedin',None)==True:
+        return {'message': 'Hello User', 'data': userdata[username]}, 200
+    else:
+        print("i",file=sys.stderr)
+        return redirect("/")
 
 app.run()
