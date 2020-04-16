@@ -21,6 +21,8 @@ def get_db():
     db = getattr(g, '_database', None)
     if db is None:
         db = g._database = shelve.open("devices.db")
+        db['user'] = 'user'
+        db['admin'] = 'admin'
     return db
 
 @app.teardown_appcontext
@@ -32,7 +34,7 @@ def teardown_db(exception):
 @app.route("/")
 def index():
     if not request.cookies.get('access_level'):
-        with open(os.path.dirname(app.root_path) + '/test.html', 'r') as markdown_file:
+        with open(os.path.dirname(app.root_path) + '/index.html', 'r') as markdown_file:
 
             content = markdown_file.read()
 
@@ -44,20 +46,36 @@ def index():
         return res
 
 class Users(Resource):
-    user_db = {'admin':'admin','user1':'user1','user2':'user2','user3':'user3'}
+    user_db = {'admin':'admin','user':'user'}
+    def get(self):
+        if not request.cookies.get('access_level'):
+            res = make_response("Please sign in")
+        else:
+            f = open(os.path.dirname(app.root_path) + '/device_registry/' + request.cookies.get('access_level') + '.html', 'r')
+            res = make_response(f.read())
+            f.close()
+        return res
+    
     def post(self):
+        db = get_db()
         parser = reqparse.RequestParser()
-        parser.add_argument('user',required=True)
-        parser.add_argument('password', required=True)
+        parser.add_argument('user')
+        parser.add_argument('password')
+        parser.add_argument('status')
         args = parser.parse_args()
-        #authenticate
-        if args['user'] in self.user_db and args['password'] == self.user_db[args['user']]:
+        #authenticate or logout
+        if args['status'] != None:
+            res = make_response("Logged out")
+            res.set_cookie('access_level','',max_age=0)
+            return res
+        if args['user'] in db and args['password'] == self.user_db[args['user']]:
             #check for cookies
             if not request.cookies.get('access_level'):
                 f = open(os.path.dirname(app.root_path) +
                         '/device_registry/' + args['user'] + '.html', 'r')
                 res = make_response(f.read())
                 res.set_cookie('access_level', args['user'], max_age=60*60)
+                # res.set_cookie('status',args['status'],max_age=900)
             else:
                 f = open(os.path.dirname(app.root_path) +'/device_registry/' + args['user'] + '.html', 'r')
                 res = make_response(f.read())
@@ -65,15 +83,15 @@ class Users(Resource):
             return res
         else:
             return {'message': 'Failure', 'data': 'Not found'}, 404
-
+'''
 class User(Resource):
 
     def get(self, identifier):
         
 
         return {'message': 'Device found', 'data': users[identifier]}, 200
-
-
+'''
+'''
 class DeviceList(Resource):
     def get(self):
         shelf = get_db()
@@ -101,8 +119,9 @@ class DeviceList(Resource):
         shelf[args['identifier']] = args
 
         return {'message': 'Device registered', 'data': args}, 201
+'''
 
-
+'''
 class Device(Resource):
     def get(self, identifier):
         shelf = get_db()
@@ -122,8 +141,8 @@ class Device(Resource):
 
         del shelf[identifier]
         return '', 204
-
+'''
 api.add_resource(Users,'/users/')
-api.add_resource(DeviceList, '/devices')
-api.add_resource(User, '/user/<string:identifier>')
-api.add_resource(Device, '/device/<string:identifier>')
+# api.add_resource(DeviceList, '/devices')
+# api.add_resource(User, '/user/<string:identifier>')
+# api.add_resource(Device, '/device/<string:identifier>')
