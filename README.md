@@ -8,3 +8,12 @@ Challenge is present inside the device_registry folder
 <li>The logic here is to break in via cookies, where the access controls are temporarily stored to distinguish users</li>
 <li>Code logic looks at the access-control strings in the cookie and decides the pages to display</li>
 </ul>
+
+## Object Level Broken Authorization Challenge
+**Challenge is present inside the AuthZ folder**
+
+- Three users are present, user1,user2 and user3
+- The user1 credentials will be given to the contestants
+- Upon login the username will  be redirected '/user/username' endpoint
+- The contestant need to type the url '/user/user2' to find the flag
+
