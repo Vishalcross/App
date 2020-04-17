@@ -2,6 +2,8 @@
 ## Broken Authentication Challenge
 Challenge is present inside the device_registry folder
 <ul>
+<li>Start the challenge by starting docker and then building and running it
+<li>Challenge is hosted at http://localhost:5000</li>
 <li>Two users are present, aptly named 'user' and 'admin'</li>
 <li>The user credentials will be "leaked" to the contestants</li>
 <li>The flag/code can be seen after loggin in as admin</li>
