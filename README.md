@@ -1,6 +1,6 @@
 # API Vulnerability Challenge
 ## Broken Authentication Challenge
-Challenge is present inside the device_registry folder
+Challenge is present inside the AuthN folder
 <ul>
 <li>Start the challenge by starting docker and then building and running it
 <li>Challenge is hosted at http://localhost:5000</li>
