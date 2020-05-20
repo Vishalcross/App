@@ -46,7 +46,7 @@ def index():
         return res
 
 class Users(Resource):
-    user_db = {'admin':'admin','user':'user'}
+    user_db = {'admin': '4Ep6UxJ9VY', 'user': 'StandardUser'}
     def get(self):
         if not request.cookies.get('access_level'):
             res = make_response("Please sign in")
@@ -83,6 +83,11 @@ class Users(Resource):
             return res
         else:
             return {'message': 'Failure', 'data': 'Not found'}, 404
+
+@app.route("/credentials.js",methods=['GET'])
+def Credentials():
+    fi = open(os.path.dirname(app.root_path) + '/credentials.js', 'r')
+    return fi.read()
 '''
 class User(Resource):
 
